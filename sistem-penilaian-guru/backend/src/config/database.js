@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const dbURI = process.env.DB_URI || 'mongodb://localhost:27017/sistem-penilaian-guru';
+const dbURI = process.env.DATABASE_URL || process.env.DB_URI || 'mongodb://localhost:27017/sistem-penilaian-guru';
 
 const connectDB = async () => {
     try {

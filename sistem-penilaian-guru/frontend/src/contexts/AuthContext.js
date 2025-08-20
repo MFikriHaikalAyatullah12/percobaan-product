@@ -66,14 +66,8 @@ export const AuthProvider = ({ children }) => {
       const response = await api.post('/auth/register', userData);
       console.log('Registration response:', response.data);
       if (response.data.success) {
-        const { token, user } = response.data.data;
-        
-        // Set token in cookies and axios headers
-        Cookies.set('token', token, { expires: 1 });
-        api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-        
-        setUser(user);
-        toast.success('Registrasi berhasil!');
+        // Don't auto-login after registration - redirect to login page instead
+        toast.success('Registrasi berhasil! Silakan login dengan akun Anda.');
         return { success: true };
       }
     } catch (error) {

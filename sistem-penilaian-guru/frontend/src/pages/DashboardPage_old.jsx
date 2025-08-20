@@ -93,45 +93,26 @@ const DashboardPage = () => {
       try {
         setLoading(true);
         
-        // Fetch students untuk statistik
-        const studentsResponse = await api.get('/students');
-        const students = studentsResponse.data?.data?.students || [];
-        
-        // Fetch grades untuk statistik
-        const gradesResponse = await api.get('/grades');
-        const grades = gradesResponse.data?.data?.grades || [];
-        
-        // Hitung statistik
-        const totalStudents = students.length;
-        const totalGrades = grades.length;
-        const averageGrade = grades.length > 0 
-          ? grades.reduce((sum, grade) => sum + (grade.score || 0), 0) / grades.length
-          : 0;
-        
-        setStats({
-          totalStudents,
-          totalGrades,
-          averageGrade,
-          totalSubjects: user?.subjects?.length || 0,
-        });
-        
-        setRecentGrades(grades.slice(0, 10));
+        // Fetch dashboard statistics
+        const statsResponse = await api.get('/dashboard/stats');
+        if (statsResponse.data.success) {
+          setStats(statsResponse.data.data);
+        }
+
+        // Fetch recent grades for chart
+        const gradesResponse = await api.get('/grades?limit=10');
+        if (gradesResponse.data.success) {
+          setRecentGrades(gradesResponse.data.data.grades || []);
+        }
       } catch (error) {
         console.error('Failed to fetch dashboard data:', error);
-        // Set default values jika error
-        setStats({
-          totalStudents: 0,
-          totalGrades: 0,
-          averageGrade: 0,
-          totalSubjects: 0,
-        });
       } finally {
         setLoading(false);
       }
     };
 
     fetchDashboardData();
-  }, [user]);
+  }, []);
 
   if (loading) {
     return (
@@ -396,6 +377,91 @@ const DashboardPage = () => {
                 </Card>
               </Grid>
             </Grid>
+          </Paper>
+        </Grid>
+      </Grid>
+    </Container>
+  );
+          />
+        </Grid>
+        <Grid item xs={12} sm={6} md={3}>
+          <StatCard
+            title="Total Nilai"
+            value={stats.totalGrades}
+            icon={<Assessment />}
+            color="secondary"
+          />
+        </Grid>
+        <Grid item xs={12} sm={6} md={3}>
+          <StatCard
+            title="Rata-rata Nilai"
+            value={stats.averageGrade ? stats.averageGrade.toFixed(1) : '0'}
+            icon={<TrendingUp />}
+            color="success"
+          />
+        </Grid>
+        <Grid item xs={12} sm={6} md={3}>
+          <StatCard
+            title="Total Mata Pelajaran"
+            value={stats.totalSubjects}
+            icon={<School />}
+            color="warning"
+          />
+        </Grid>
+      </Grid>
+
+      {/* Charts and Recent Activity */}
+      <Grid container spacing={3}>
+        <Grid item xs={12} md={8}>
+          <Paper sx={{ p: 3, mb: 3 }}>
+            <Typography variant="h6" gutterBottom>
+              Grafik Nilai Terbaru
+            </Typography>
+            {recentGrades.length > 0 ? (
+              <GradeChart grades={recentGrades} />
+            ) : (
+              <Box
+                display="flex"
+                justifyContent="center"
+                alignItems="center"
+                minHeight="300px"
+              >
+                <Typography color="textSecondary">
+                  Belum ada data nilai untuk ditampilkan
+                </Typography>
+              </Box>
+            )}
+          </Paper>
+        </Grid>
+
+        <Grid item xs={12} md={4}>
+          <Paper sx={{ p: 3 }}>
+            <Typography variant="h6" gutterBottom>
+              Aktivitas Terbaru
+            </Typography>
+            <Box>
+              {recentGrades.slice(0, 5).map((grade, index) => (
+                <Box
+                  key={grade._id || index}
+                  sx={{
+                    py: 1,
+                    borderBottom: index < 4 ? '1px solid #e0e0e0' : 'none',
+                  }}
+                >
+                  <Typography variant="body2" component="div">
+                    <strong>{grade.studentName || 'Siswa'}</strong>
+                  </Typography>
+                  <Typography variant="caption" color="textSecondary">
+                    {grade.subject} - Nilai: {grade.grade}
+                  </Typography>
+                </Box>
+              ))}
+              {recentGrades.length === 0 && (
+                <Typography color="textSecondary" variant="body2">
+                  Belum ada aktivitas penilaian
+                </Typography>
+              )}
+            </Box>
           </Paper>
         </Grid>
       </Grid>

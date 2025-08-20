@@ -351,3 +351,8 @@ const StudentForm = ({ student, onStudentAdded, isEdit = false }) => {
 };
 
 export default StudentForm;
+        </form>
+    );
+};
+
+export default StudentForm;

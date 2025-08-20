@@ -92,11 +92,11 @@ exports.login = async (req, res) => {
             });
         }
 
-        const { username, password } = req.body;
+        const { email, password } = req.body;
 
         // Find user by username or email
         const user = await User.findOne({
-            $or: [{ username }, { email: username }],
+            $or: [{ username: email }, { email: email }],
             isActive: true
         });
 
