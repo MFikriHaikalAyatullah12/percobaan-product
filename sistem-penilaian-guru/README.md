@@ -1,5 +1,5 @@
 # sistem-penilaian-guru
-
+# cd /workspaces/percobaan-product/sistem-penilaian-guru && npm run dev
 ## Deskripsi Proyek
 Proyek ini adalah sistem penilaian untuk guru yang memungkinkan pengelolaan data siswa, nilai, dan laporan. Sistem ini terdiri dari frontend dan backend yang terintegrasi dengan database.
 

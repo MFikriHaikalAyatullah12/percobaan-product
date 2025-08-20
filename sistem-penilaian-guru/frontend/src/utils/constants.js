@@ -1,4 +1,5 @@
 export const API_BASE_URL = 'http://localhost:5000/api';
+export const API_URL = 'http://localhost:5000/api'; // Alias for backward compatibility
 export const DEFAULT_PAGE_SIZE = 10;
 export const MAX_UPLOAD_SIZE = 5 * 1024 * 1024; // 5 MB
 export const SUPPORTED_IMAGE_FORMATS = ['image/jpeg', 'image/png', 'image/gif'];

@@ -1,34 +1,97 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
-import Header from './components/common/Header';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import { Box } from '@mui/material';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
+import Navbar from './components/common/Navbar';
 import Sidebar from './components/common/Sidebar';
-import LoadingSpinner from './components/common/LoadingSpinner';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import StudentsPage from './pages/StudentsPage';
 import GradesPage from './pages/GradesPage';
-import ReportsPage from './pages/ReportsPage';
+import ProfilePage from './pages/ProfilePage';
+import ProtectedRoute from './components/auth/ProtectedRoute';
 
-const App = () => {
+function AppContent() {
+  const { user } = useAuth();
+
+  if (!user) {
     return (
-        <Router>
-            <div className="app">
-                <Header />
-                <Sidebar />
-                <main>
-                    <React.Suspense fallback={<LoadingSpinner />}>
-                        <Switch>
-                            <Route path="/" exact component={DashboardPage} />
-                            <Route path="/login" component={LoginPage} />
-                            <Route path="/students" component={StudentsPage} />
-                            <Route path="/grades" component={GradesPage} />
-                            <Route path="/reports" component={ReportsPage} />
-                        </Switch>
-                    </React.Suspense>
-                </main>
-            </div>
-        </Router>
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="*" element={<Navigate to="/login" replace />} />
+      </Routes>
     );
-};
+  }
+
+  return (
+    <Box sx={{ display: 'flex' }}>
+      <Navbar />
+      <Sidebar />
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+          p: 3,
+          mt: 8,
+          ml: { xs: 0, md: 30 },
+          minHeight: '100vh',
+          backgroundColor: 'background.default',
+        }}
+      >
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <Navigate to="/dashboard" replace />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <DashboardPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/students"
+            element={
+              <ProtectedRoute>
+                <StudentsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/grades"
+            element={
+              <ProtectedRoute>
+                <GradesPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <ProfilePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        </Routes>
+      </Box>
+    </Box>
+  );
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
+  );
+}
 
 export default App;

@@ -1,0 +1,33 @@
+{
+  "name": "sistem-penilaian-guru",
+  "version": "1.0.0",
+  "description": "Sistem Penilaian Guru - Teacher Grading System",
+  "scripts": {
+    "dev": "concurrently \"npm run backend:dev\" \"npm run frontend:dev\"",
+    "backend:dev": "cd backend && npm run dev",
+    "frontend:dev": "cd frontend && npm start",
+    "start": "concurrently \"npm run backend:start\" \"npm run frontend:build\"",
+    "backend:start": "cd backend && npm start",
+    "frontend:build": "cd frontend && npm run build",
+    "install-all": "cd backend && npm install && cd ../frontend && npm install",
+    "stop": "pkill -f 'node server.js' && pkill -f 'react-scripts start'",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "teacher",
+    "grading",
+    "education",
+    "react",
+    "nodejs",
+    "mongodb"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.0"
+  }
+}
