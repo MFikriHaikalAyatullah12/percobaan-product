@@ -22,10 +22,7 @@ api.interceptors.request.use(
             headers: config.headers
         });
         
-        const token = localStorage.getItem('token');
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
-        }
+        // No need to add token here, it's handled in AuthContext
         return config;
     },
     (error) => {

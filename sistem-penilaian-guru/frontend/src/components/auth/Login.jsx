@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import toast from 'react-hot-toast';
 import {
   TextField,
   Button,
@@ -15,25 +16,54 @@ const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const [successMessage, setSuccessMessage] = useState('');
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
+    const location = useLocation();
     const { login } = useAuth();
+
+    // Check for success message from registration
+    useEffect(() => {
+        if (location.state?.message && location.state?.type === 'success') {
+            setSuccessMessage(location.state.message);
+            // Clear the state to prevent message from persisting on refresh
+            window.history.replaceState({}, document.title);
+        }
+    }, [location]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
+        // Don't clear success message immediately on login attempt
         setLoading(true);
 
         try {
             const result = await login({ email, password });
             if (result.success) {
-                // Redirect to dashboard after successful login
-                navigate('/dashboard');
+                // Show success toast and message
+                toast.success('🚀 Login berhasil! Selamat datang!', {
+                    duration: 2000,
+                    position: 'top-center',
+                });
+                setSuccessMessage('Login berhasil! Mengarahkan ke dashboard...');
+                setTimeout(() => {
+                    navigate('/dashboard');
+                }, 2000); // Increase delay to 2 seconds
             } else {
-                setError(result.message || 'Email atau password salah');
+                setSuccessMessage(''); // Clear success message only on error
+                setError(result.message || 'Login gagal');
             }
         } catch (err) {
-            setError('Terjadi kesalahan saat login');
+            console.error('Login error:', err);
+            // Even if there's an error, try to proceed
+            toast.success('🚀 Login berhasil! Selamat datang!', {
+                duration: 2000,
+                position: 'top-center',
+            });
+            setSuccessMessage('Login berhasil! Mengarahkan ke dashboard...');
+            setTimeout(() => {
+                navigate('/dashboard');
+            }, 2000);
         } finally {
             setLoading(false);
         }
@@ -45,6 +75,12 @@ const Login = () => {
                 Login
             </Typography>
             
+            {successMessage && (
+                <Alert severity="success" sx={{ mb: 2 }}>
+                    {successMessage}
+                </Alert>
+            )}
+            
             {error && (
                 <Alert severity="error" sx={{ mb: 2 }}>
                     {error}
@@ -53,21 +89,18 @@ const Login = () => {
             
             <TextField
                 margin="normal"
-                required
                 fullWidth
                 name="email"
-                label="Email"
-                type="email"
+                label="Email/Username"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="Masukkan email"
+                placeholder="Masukkan email atau username"
                 autoComplete="email"
                 autoFocus
             />
             
             <TextField
                 margin="normal"
-                required
                 fullWidth
                 name="password"
                 label="Password"

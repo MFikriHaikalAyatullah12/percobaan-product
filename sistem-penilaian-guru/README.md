@@ -36,3 +36,5 @@ Silakan buka isu atau kirim permintaan tarik jika Anda ingin berkontribusi pada 
 
 ## Lisensi
 Proyek ini dilisensikan di bawah [MIT License](LICENSE).
+
+# cd /workspaces/percobaan-product/sistem-penilaian-guru && chmod +x start-all.sh && ./start-all.sh

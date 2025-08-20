@@ -1,0 +1,26 @@
+#!/bin/bash
+
+# Cara manual menjalankan backend dan frontend di terminal terpisah
+
+echo "=== CARA MANUAL MENJALANKAN APLIKASI ==="
+echo ""
+echo "Terminal 1 - Backend:"
+echo "cd /workspaces/percobaan-product/sistem-penilaian-guru/backend"
+echo "npm start"
+echo ""
+echo "Terminal 2 - Frontend:"
+echo "cd /workspaces/percobaan-product/sistem-penilaian-guru/frontend"
+echo "npm start"
+echo ""
+echo "=== ATAU GUNAKAN SCRIPT OTOMATIS ==="
+echo ""
+echo "Jalankan script ini:"
+echo "./start-all.sh"
+echo ""
+echo "=== CARA LAIN (NPM CONCURRENT) ==="
+echo ""
+echo "1. Install concurrently (global):"
+echo "npm install -g concurrently"
+echo ""
+echo "2. Jalankan dari root folder:"
+echo "concurrently \"cd backend && npm start\" \"cd frontend && npm start\""

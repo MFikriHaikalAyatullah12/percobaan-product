@@ -1,0 +1,134 @@
+nohup: ignoring input
+
+> sistem-penilaian-guru@1.0.0 dev
+> concurrently "npm run backend:dev" "npm run frontend:dev"
+
+[0] 
+[0] > sistem-penilaian-guru@1.0.0 backend:dev
+[0] > cd backend && npm run dev
+[0] 
+[1] 
+[1] > sistem-penilaian-guru@1.0.0 frontend:dev
+[1] > cd frontend && npm start
+[1] 
+[0] 
+[0] > sistem-penilaian-guru-backend@1.0.0 dev
+[0] > nodemon server.js
+[0] 
+[1] 
+[1] > sistem-penilaian-guru-frontend@1.0.0 start
+[1] > react-scripts start
+[1] 
+[0] [33m[nodemon] 3.1.10[39m
+[0] [33m[nodemon] to restart at any time, enter `rs`[39m
+[0] [33m[nodemon] watching path(s): *.*[39m
+[0] [33m[nodemon] watching extensions: js,mjs,cjs,json[39m
+[0] [32m[nodemon] starting `node server.js`[39m
+[0] ✅ Database connected successfully
+[0] 🚀 Server is running on http://localhost:5000
+[0] 📚 API Documentation: http://localhost:5000/api
+[0] 🏥 Health Check: http://localhost:5000/health
+[0] 🌍 Environment: development
+[1] (node:54516) [DEP_WEBPACK_DEV_SERVER_ON_AFTER_SETUP_MIDDLEWARE] DeprecationWarning: 'onAfterSetupMiddleware' option is deprecated. Please use the 'setupMiddlewares' option.
+[1] (Use `node --trace-deprecation ...` to show where the warning was created)
+[1] (node:54516) [DEP_WEBPACK_DEV_SERVER_ON_BEFORE_SETUP_MIDDLEWARE] DeprecationWarning: 'onBeforeSetupMiddleware' option is deprecated. Please use the 'setupMiddlewares' option.
+[1] Starting the development server...
+[1] 
+[1] Compiled successfully!
+[1] 
+[1] You can now view sistem-penilaian-guru-frontend in the browser.
+[1] 
+[1]   Local:            http://localhost:3000
+[1]   On Your Network:  http://10.0.3.112:3000
+[1] 
+[1] Note that the development build is not optimized.
+[1] To create a production build, use npm run build.
+[1] 
+[1] webpack compiled successfully
+[0] Login attempt: {
+[0]   body: { email: 'devy@gmail.com', password: 'Devy1234' },
+[0]   email: 'devy@gmail.com',
+[0]   password: '[8 chars]'
+[0] }
+[1] Compiling...
+[1] Compiled successfully!
+[1] webpack compiled successfully
+[0] [32m[nodemon] restarting due to changes...[39m
+[0] [32m[nodemon] starting `node server.js`[39m
+[0] ✅ Database connected successfully
+[0] 🚀 Server is running on http://localhost:5000
+[0] 📚 API Documentation: http://localhost:5000/api
+[0] 🏥 Health Check: http://localhost:5000/health
+[0] 🌍 Environment: development
+[0] Login attempt: {
+[0]   body: { email: 'admin@test.com', password: 'Admin123' },
+[0]   email: 'admin@test.com',
+[0]   password: '[8 chars]'
+[0] }
+[1] Compiling...
+[0] [32m[nodemon] restarting due to changes...[39m
+[0] [32m[nodemon] starting `node server.js`[39m
+[0] ✅ Database connected successfully
+[0] 🚀 Server is running on http://localhost:5000
+[0] 📚 API Documentation: http://localhost:5000/api
+[0] 🏥 Health Check: http://localhost:5000/health
+[0] 🌍 Environment: development
+[1] Compiled successfully!
+[1] webpack compiled successfully
+[0] [31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[1] The build failed because the process exited too early. This probably means the system ran out of memory or someone called `kill -9` on the process.
+[1] npm run frontend:dev exited with code 1
+[0] [32m[nodemon] restarting due to changes...[39m
+[0] [32m[nodemon] starting `node server.js`[39m
+[0] ✅ Database connected successfully
+[0] node:events:496
+[0]       throw er; // Unhandled 'error' event
+[0]       ^
+[0] 
+[0] Error: listen EADDRINUSE: address already in use :::5000
+[0]     at Server.setupListenHandle [as _listen2] (node:net:1940:16)
+[0]     at listenInCluster (node:net:1997:12)
+[0]     at Server.listen (node:net:2102:7)
+[0]     at Function.listen (/workspaces/percobaan-product/sistem-penilaian-guru/backend/node_modules/express/lib/application.js:635:24)
+[0]     at startServer (/workspaces/percobaan-product/sistem-penilaian-guru/backend/server.js:84:13)
+[0]     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+[0] Emitted 'error' event on Server instance at:
+[0]     at emitErrorNT (node:net:1976:8)
+[0]     at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+[0]   code: 'EADDRINUSE',
+[0]   errno: -98,
+[0]   syscall: 'listen',
+[0]   address: '::',
+[0]   port: 5000
+[0] }
+[0] 
+[0] Node.js v22.17.0
+[0] [31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[0] [32m[nodemon] restarting due to changes...[39m
+[0] [32m[nodemon] starting `node server.js`[39m
+[0] ✅ Database connected successfully
+[0] node:events:496
+[0]       throw er; // Unhandled 'error' event
+[0]       ^
+[0] 
+[0] Error: listen EADDRINUSE: address already in use :::5000
+[0]     at Server.setupListenHandle [as _listen2] (node:net:1940:16)
+[0]     at listenInCluster (node:net:1997:12)
+[0]     at Server.listen (node:net:2102:7)
+[0]     at Function.listen (/workspaces/percobaan-product/sistem-penilaian-guru/backend/node_modules/express/lib/application.js:635:24)
+[0]     at startServer (/workspaces/percobaan-product/sistem-penilaian-guru/backend/server.js:84:13)
+[0]     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+[0] Emitted 'error' event on Server instance at:
+[0]     at emitErrorNT (node:net:1976:8)
+[0]     at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+[0]   code: 'EADDRINUSE',
+[0]   errno: -98,
+[0]   syscall: 'listen',
+[0]   address: '::',
+[0]   port: 5000
+[0] }
+[0] 
+[0] Node.js v22.17.0
+[0] [31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[0] Killed
+[0] npm run backend:dev exited with code 137
