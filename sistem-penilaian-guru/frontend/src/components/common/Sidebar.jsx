@@ -15,6 +15,7 @@ import {
   People,
   Assessment,
   Person,
+  School,
 } from '@mui/icons-material';
 
 const drawerWidth = 240;
@@ -24,6 +25,11 @@ const menuItems = [
     text: 'Dashboard',
     icon: <Dashboard />,
     path: '/dashboard',
+  },
+  {
+    text: 'Room Kelas',
+    icon: <School />,
+    path: '/classroom',
   },
   {
     text: 'Data Siswa',

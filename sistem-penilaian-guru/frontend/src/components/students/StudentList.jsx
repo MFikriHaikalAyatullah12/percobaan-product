@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import {
   Box,
   Typography,
@@ -21,6 +22,7 @@ import {
   DialogContent,
   DialogActions,
   Button,
+  CardActionArea,
 } from '@mui/material';
 import {
   Search as SearchIcon,
@@ -47,6 +49,46 @@ const StudentList = () => {
     const [deleteStudent, setDeleteStudent] = useState(null);
     const [openEditDialog, setOpenEditDialog] = useState(false);
     const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+    
+    // URL params untuk filter kelas
+    const [searchParams] = useSearchParams();
+    const navigate = useNavigate();
+    
+    // Set filter kelas dari URL saat komponen dimuat
+    useEffect(() => {
+        const classFromUrl = searchParams.get('class');
+        if (classFromUrl) {
+            setClassFilter(classFromUrl);
+        }
+    }, [searchParams]);
+    
+    // Fetch students saat classFilter berubah
+    useEffect(() => {
+        fetchStudents();
+    }, [page, searchTerm, classFilter, academicYearFilter]);
+    
+    // Konstanta kapasitas maksimal per kelas
+    const MAX_CAPACITY_PER_CLASS = 35;
+    
+    // Menghitung jumlah siswa per kelas
+    const getClassCount = (grade) => {
+        return students.filter(student => student.grade === grade).length;
+    };
+    
+    // Mendapatkan status kapasitas kelas
+    const getClassCapacityStatus = (grade) => {
+        const count = getClassCount(grade);
+        const percentage = (count / MAX_CAPACITY_PER_CLASS) * 100;
+        
+        if (percentage >= 100) return { status: 'full', color: '#f44336', text: 'Penuh' };
+        if (percentage >= 80) return { status: 'warning', color: '#ff9800', text: 'Hampir Penuh' };
+        return { status: 'normal', color: '#4caf50', text: 'Tersedia' };
+    };
+
+    // Fungsi untuk navigasi ke detail room kelas
+    const handleClassroomClick = (grade) => {
+        navigate(`/classroom/${grade}`);
+    };
 
     const fetchStudents = async () => {
         try {
@@ -59,7 +101,7 @@ const StudentList = () => {
                 ...(academicYearFilter && { academicYear: academicYearFilter }),
             });
 
-            const response = await api.get(`/students?${params}`);
+            const response = await api.get(`/students/demo?${params}`);
             if (response.data.success) {
                 setStudents(response.data.data.students || []);
                 setTotalPages(response.data.data.pagination?.totalPages || 1);
@@ -164,9 +206,12 @@ const StudentList = () => {
                                 }}
                             >
                                 <MenuItem value="">Semua Kelas</MenuItem>
-                                <MenuItem value="X">Kelas X</MenuItem>
-                                <MenuItem value="XI">Kelas XI</MenuItem>
-                                <MenuItem value="XII">Kelas XII</MenuItem>
+                                <MenuItem value="1">Kelas 1 SD</MenuItem>
+                                <MenuItem value="2">Kelas 2 SD</MenuItem>
+                                <MenuItem value="3">Kelas 3 SD</MenuItem>
+                                <MenuItem value="4">Kelas 4 SD</MenuItem>
+                                <MenuItem value="5">Kelas 5 SD</MenuItem>
+                                <MenuItem value="6">Kelas 6 SD</MenuItem>
                             </Select>
                         </FormControl>
                     </Grid>
@@ -190,6 +235,104 @@ const StudentList = () => {
                             </Select>
                         </FormControl>
                     </Grid>
+                </Grid>
+            </Box>
+
+            {/* Kapasitas Kelas SD */}
+            <Box sx={{ mb: 3 }}>
+                <Typography variant="h6" gutterBottom fontWeight="bold">
+                    🏫 Kapasitas Kelas SD
+                </Typography>
+                <Grid container spacing={2}>
+                    {[1, 2, 3, 4, 5, 6].map(grade => {
+                        const count = getClassCount(grade.toString());
+                        const capacity = getClassCapacityStatus(grade.toString());
+                        const percentage = (count / MAX_CAPACITY_PER_CLASS) * 100;
+                        
+                        return (
+                            <Grid item xs={12} sm={6} md={4} key={grade}>
+                                <Card 
+                                    sx={{ 
+                                        background: `linear-gradient(135deg, ${capacity.color}20 0%, ${capacity.color}10 100%)`,
+                                        border: `1px solid ${capacity.color}40`,
+                                        position: 'relative',
+                                        overflow: 'hidden',
+                                        cursor: 'pointer',
+                                        transition: 'all 0.3s ease',
+                                        '&:hover': {
+                                            transform: 'translateY(-4px)',
+                                            boxShadow: 6,
+                                            border: `2px solid ${capacity.color}`,
+                                        }
+                                    }}
+                                >
+                                    <CardActionArea 
+                                        onClick={() => handleClassroomClick(grade)}
+                                        sx={{ height: '100%' }}
+                                    >
+                                        <CardContent>
+                                            <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
+                                                <Typography variant="h6" fontWeight="bold">
+                                                    📚 Kelas {grade} SD
+                                                </Typography>
+                                                <Chip 
+                                                    label={capacity.text}
+                                                    size="small"
+                                                    sx={{ 
+                                                        backgroundColor: capacity.color,
+                                                        color: 'white',
+                                                        fontWeight: 'bold'
+                                                    }}
+                                                />
+                                            </Box>
+                                            
+                                            <Typography variant="body2" color="text.secondary" mb={2}>
+                                                👥 {count} / {MAX_CAPACITY_PER_CLASS} siswa
+                                            </Typography>
+                                            
+                                            <Box 
+                                                sx={{ 
+                                                    width: '100%', 
+                                                    height: 8, 
+                                                    backgroundColor: '#f0f0f0',
+                                                    borderRadius: 4,
+                                                    overflow: 'hidden',
+                                                    mb: 1
+                                                }}
+                                            >
+                                                <Box 
+                                                    sx={{ 
+                                                        width: `${Math.min(percentage, 100)}%`,
+                                                        height: '100%',
+                                                        backgroundColor: capacity.color,
+                                                        transition: 'width 0.3s ease'
+                                                    }}
+                                                />
+                                            </Box>
+                                            
+                                            <Typography variant="caption" color="text.secondary" mb={1} display="block">
+                                                📊 {percentage.toFixed(1)}% kapasitas
+                                            </Typography>
+                                            
+                                            <Typography variant="body2" 
+                                                sx={{ 
+                                                    color: capacity.color, 
+                                                    fontWeight: 'medium',
+                                                    textAlign: 'center',
+                                                    mt: 1,
+                                                    p: 1,
+                                                    backgroundColor: `${capacity.color}10`,
+                                                    borderRadius: 1
+                                                }}
+                                            >
+                                                🖱️ Klik untuk kelola room kelas
+                                            </Typography>
+                                        </CardContent>
+                                    </CardActionArea>
+                                </Card>
+                            </Grid>
+                        );
+                    })}
                 </Grid>
             </Box>
 

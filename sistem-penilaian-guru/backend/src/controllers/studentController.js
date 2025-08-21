@@ -387,3 +387,63 @@ exports.getStudentStats = async (req, res) => {
         });
     }
 };
+
+// Demo method untuk testing frontend tanpa authentication
+exports.getAllStudentsDemo = async (req, res) => {
+    try {
+        const { page = 1, limit = 10, search = '', class: className = '', academicYear = '' } = req.query;
+        
+        // Build query tanpa teacherId requirement
+        let query = { isActive: true };
+        
+        if (search) {
+            query.$or = [
+                { fullName: { $regex: search, $options: 'i' } },
+                { nis: { $regex: search, $options: 'i' } },
+                { email: { $regex: search, $options: 'i' } }
+            ];
+        }
+        
+        if (className) {
+            query.class = className;
+        }
+        
+        if (academicYear) {
+            query.academicYear = academicYear;
+        }
+
+        // Calculate pagination
+        const skip = (parseInt(page) - 1) * parseInt(limit);
+        const students = await Student.find(query)
+            .sort({ fullName: 1 })
+            .skip(skip)
+            .limit(parseInt(limit));
+
+        const total = await Student.countDocuments(query);
+        const totalPages = Math.ceil(total / parseInt(limit));
+
+        res.status(200).json({
+            success: true,
+            message: 'Students retrieved successfully (demo)',
+            data: {
+                students,
+                pagination: {
+                    currentPage: parseInt(page),
+                    totalPages,
+                    totalStudents: total,
+                    hasNextPage: parseInt(page) < totalPages,
+                    hasPrevPage: parseInt(page) > 1,
+                    limit: parseInt(limit)
+                }
+            }
+        });
+
+    } catch (error) {
+        console.error('Get all students demo error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error retrieving students',
+            error: error.message
+        });
+    }
+};

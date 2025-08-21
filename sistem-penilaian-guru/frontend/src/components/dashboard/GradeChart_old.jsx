@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Typography } from '@mui/material';
+import { Box, Typography, Paper } from '@mui/material';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -44,11 +44,11 @@ const GradeChart = ({ data = [] }) => {
     // Prepare chart data - group by class
     const classData = {};
     data.forEach(grade => {
-        const className = grade.className || grade.class || 'Tidak Diketahui';
+        const className = grade.className || 'Tidak Diketahui';
         if (!classData[className]) {
             classData[className] = [];
         }
-        classData[className].push(grade.score || grade.value || 0);
+        classData[className].push(grade.score || 0);
     });
 
     // Calculate average for each class
@@ -118,6 +118,9 @@ const GradeChart = ({ data = [] }) => {
             <Bar data={chartConfig} options={options} />
         </Box>
     );
+};
+
+export default GradeChart;
 };
 
 export default GradeChart;

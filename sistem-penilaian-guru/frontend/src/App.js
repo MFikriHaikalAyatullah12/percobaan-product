@@ -11,6 +11,8 @@ import DashboardPage from './pages/DashboardPage';
 import StudentsPage from './pages/StudentsPage';
 import GradesPage from './pages/GradesPage';
 import ProfilePage from './pages/ProfilePage';
+import ClassroomDetailPage from './pages/ClassroomDetailPage';
+import ClassroomPage from './pages/ClassroomPage';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 
 function AppContent() {
@@ -66,6 +68,22 @@ function AppContent() {
             element={
               <ProtectedRoute>
                 <StudentsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/classroom"
+            element={
+              <ProtectedRoute>
+                <ClassroomPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/classroom/:grade"
+            element={
+              <ProtectedRoute>
+                <ClassroomDetailPage />
               </ProtectedRoute>
             }
           />

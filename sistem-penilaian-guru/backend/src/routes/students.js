@@ -12,6 +12,9 @@ const {
     validate 
 } = require('../middleware/validation');
 
+// Public route for demo (untuk testing frontend)
+router.get('/demo', studentController.getAllStudentsDemo);
+
 // All student routes require authentication and teacher role
 router.use(authenticate);
 router.use(requireTeacher);

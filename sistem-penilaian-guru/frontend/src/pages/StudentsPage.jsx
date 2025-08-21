@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import {
   Container,
   Typography,
@@ -14,11 +15,13 @@ import {
   DialogContent,
   DialogActions,
   Button,
+  Chip,
 } from '@mui/material';
 import {
   Add as AddIcon,
   People,
   Close as CloseIcon,
+  Class as ClassIcon,
 } from '@mui/icons-material';
 import StudentList from '../components/students/StudentList';
 import StudentForm from '../components/students/StudentForm';
@@ -26,6 +29,8 @@ import StudentForm from '../components/students/StudentForm';
 const StudentsPage = () => {
     const [openDialog, setOpenDialog] = useState(false);
     const [refreshList, setRefreshList] = useState(0);
+    const [searchParams] = useSearchParams();
+    const classFilter = searchParams.get('class');
 
     const handleOpenDialog = () => {
         setOpenDialog(true);
@@ -44,11 +49,29 @@ const StudentsPage = () => {
         <Container maxWidth="lg" sx={{ py: 3 }}>
             {/* Header */}
             <Box sx={{ mb: 4 }}>
-                <Typography variant="h4" component="h1" gutterBottom fontWeight="bold" color="primary">
-                    🎓 Manajemen Siswa
-                </Typography>
+                <Box display="flex" alignItems="center" gap={2} mb={2}>
+                    <Typography variant="h4" component="h1" fontWeight="bold" color="primary">
+                        🎓 Manajemen Siswa
+                    </Typography>
+                    {classFilter && (
+                        <Chip 
+                            icon={<ClassIcon />}
+                            label={`Kelas ${classFilter} SD`}
+                            color="primary"
+                            variant="outlined"
+                            sx={{ 
+                                fontSize: '1rem',
+                                height: '36px',
+                                '& .MuiChip-icon': { fontSize: '1.2rem' }
+                            }}
+                        />
+                    )}
+                </Box>
                 <Typography variant="body1" color="textSecondary">
-                    Kelola data siswa, tambah siswa baru, dan edit informasi siswa
+                    {classFilter 
+                        ? `Kelola data siswa untuk Kelas ${classFilter} SD (maksimal 35 siswa)`
+                        : 'Kelola data siswa SD untuk semua kelas (1-6 SD)'
+                    }
                 </Typography>
             </Box>
 

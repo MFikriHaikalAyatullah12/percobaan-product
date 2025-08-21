@@ -69,7 +69,7 @@ const StudentForm = ({ student, onStudentAdded, isEdit = false }) => {
         }
     };
 
-    const validateForm = () => {
+    const validateForm = async () => {
         const newErrors = {};
         
         if (!formData.nis.trim()) {
@@ -96,6 +96,21 @@ const StudentForm = ({ student, onStudentAdded, isEdit = false }) => {
             newErrors.academicYear = 'Tahun ajaran wajib diisi';
         }
 
+        // Validasi kapasitas kelas (maksimal 35 siswa per kelas)
+        if (formData.class && (!isEdit || (isEdit && student.class !== formData.class))) {
+            try {
+                const response = await api.get(`/students?class=${formData.class}&limit=100`);
+                if (response.data.success) {
+                    const currentClassCount = response.data.data.students?.length || 0;
+                    if (currentClassCount >= 35) {
+                        newErrors.class = `Kelas ${formData.class} SD sudah penuh (maksimal 35 siswa)`;
+                    }
+                }
+            } catch (error) {
+                console.error('Error checking class capacity:', error);
+            }
+        }
+
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
@@ -103,7 +118,8 @@ const StudentForm = ({ student, onStudentAdded, isEdit = false }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         
-        if (!validateForm()) {
+        const isValid = await validateForm();
+        if (!isValid) {
             toast.error('Mohon periksa kembali data yang diisi');
             return;
         }
@@ -297,9 +313,12 @@ const StudentForm = ({ student, onStudentAdded, isEdit = false }) => {
                             label="Kelas"
                             onChange={handleChange}
                         >
-                            <MenuItem value="X">Kelas X</MenuItem>
-                            <MenuItem value="XI">Kelas XI</MenuItem>
-                            <MenuItem value="XII">Kelas XII</MenuItem>
+                            <MenuItem value="1">Kelas 1 SD</MenuItem>
+                            <MenuItem value="2">Kelas 2 SD</MenuItem>
+                            <MenuItem value="3">Kelas 3 SD</MenuItem>
+                            <MenuItem value="4">Kelas 4 SD</MenuItem>
+                            <MenuItem value="5">Kelas 5 SD</MenuItem>
+                            <MenuItem value="6">Kelas 6 SD</MenuItem>
                         </Select>
                         {errors.class && (
                             <Typography variant="caption" color="error" sx={{ mt: 0.5, ml: 1.5 }}>

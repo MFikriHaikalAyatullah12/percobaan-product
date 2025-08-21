@@ -3,7 +3,7 @@ const Student = require('../models/Student');
 const mongoose = require('mongoose');
 const { validationResult } = require('express-validator');
 
-// Get all grades for a teacher
+// Get all grades
 exports.getAllGrades = async (req, res) => {
     try {
         const { 
@@ -13,29 +13,27 @@ exports.getAllGrades = async (req, res) => {
             class: className = '', 
             academicYear = '', 
             semester = '',
-            gradeType = '',
             studentId = ''
         } = req.query;
         
         // Build query
-        let query = { teacherId: req.userId };
+        let query = {};
         
         if (subject) query.subject = subject;
-        if (className) query.class = className;
+        if (className) query['studentId.class'] = className;
         if (academicYear) query.academicYear = academicYear;
         if (semester) query.semester = semester;
-        if (gradeType) query.gradeType = gradeType;
         if (studentId) query.studentId = studentId;
 
         // Calculate pagination
         const skip = (parseInt(page) - 1) * parseInt(limit);
         
         const grades = await Grade.find(query)
-            .sort({ date: -1, createdAt: -1 })
+            .sort({ createdAt: -1 })
             .skip(skip)
             .limit(parseInt(limit))
-            .populate('studentId', 'fullName nis class')
-            .populate('teacherId', 'fullName username');
+            .populate('studentId', 'fullName nis class grade')
+            .lean();
 
         const total = await Grade.countDocuments(query);
         const totalPages = Math.ceil(total / parseInt(limit));
@@ -61,6 +59,37 @@ exports.getAllGrades = async (req, res) => {
             success: false,
             message: 'Error retrieving grades',
             error: error.message
+        });
+    }
+};
+
+// Get a specific grade by ID
+exports.getGradeById = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const grade = await Grade.findById(id)
+            .populate('studentId', 'fullName nis class grade')
+            .lean();
+
+        if (!grade) {
+            return res.status(404).json({
+                success: false,
+                message: 'Grade not found'
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: 'Grade retrieved successfully',
+            data: grade
+        });
+
+    } catch (error) {
+        console.error('Error getting grade by ID:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Server error'
         });
     }
 };
@@ -100,10 +129,9 @@ exports.getGradeById = async (req, res) => {
     }
 };
 
-// Create new grade
+// Create a new grade
 exports.createGrade = async (req, res) => {
     try {
-        // Check for validation errors
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             return res.status(400).json({
@@ -113,84 +141,70 @@ exports.createGrade = async (req, res) => {
             });
         }
 
-        const {
-            studentId,
-            subject,
-            gradeType,
-            score,
-            maxScore = 100,
-            weight = 1,
-            class: className,
-            academicYear,
-            semester,
-            date,
-            description,
-            notes
-        } = req.body;
+        const { studentId, subject, grade, semester, academicYear, description } = req.body;
 
-        // Verify student belongs to this teacher
-        const student = await Student.findOne({
-            _id: studentId,
-            teacherId: req.userId,
-            isActive: true
-        });
-
+        // Check if student exists
+        const student = await Student.findById(studentId);
         if (!student) {
             return res.status(404).json({
                 success: false,
-                message: 'Student not found or does not belong to this teacher'
+                message: 'Student not found'
             });
         }
 
-        // Validate score
-        if (score < 0 || score > maxScore) {
+        // Validate grade
+        Grade.validateGrade(grade);
+
+        // Check for duplicate grade (same student, subject, semester, academic year)
+        const existingGrade = await Grade.findOne({
+            studentId,
+            subject,
+            semester,
+            academicYear
+        });
+
+        if (existingGrade) {
             return res.status(400).json({
                 success: false,
-                message: `Score must be between 0 and ${maxScore}`
+                message: 'Grade already exists for this student, subject, and semester'
             });
         }
 
-        // Create new grade
         const newGrade = new Grade({
             studentId,
-            teacherId: req.userId,
             subject,
-            gradeType,
-            score,
-            maxScore,
-            weight,
-            class: className || student.class,
-            academicYear: academicYear || student.academicYear,
+            grade,
             semester,
-            date: date || new Date(),
-            description,
-            notes
+            academicYear,
+            description
         });
 
         await newGrade.save();
-        await newGrade.populate('studentId', 'fullName nis class');
-        await newGrade.populate('teacherId', 'fullName username');
+
+        // Populate student data
+        await newGrade.populate('studentId', 'fullName nis class grade');
 
         res.status(201).json({
             success: true,
             message: 'Grade created successfully',
-            data: { grade: newGrade }
+            data: newGrade
         });
 
     } catch (error) {
-        console.error('Create grade error:', error);
+        console.error('Error creating grade:', error);
         res.status(500).json({
             success: false,
-            message: 'Error creating grade',
-            error: error.message
+            message: error.message || 'Server error'
         });
     }
 };
 
-// Update grade
+// Update a grade
 exports.updateGrade = async (req, res) => {
     try {
-        // Check for validation errors
+        const { id } = req.params;
+        const { studentId, subject, grade, semester, academicYear, description } = req.body;
+
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             return res.status(400).json({
@@ -200,65 +214,76 @@ exports.updateGrade = async (req, res) => {
             });
         }
 
-        const { id } = req.params;
-        const updateData = req.body;
-
-        // Find grade
-        const grade = await Grade.findOne({
-            _id: id,
-            teacherId: req.userId
-        });
-
-        if (!grade) {
+        // Check if grade exists
+        const existingGrade = await Grade.findById(id);
+        if (!existingGrade) {
             return res.status(404).json({
                 success: false,
                 message: 'Grade not found'
             });
         }
 
-        // Validate score if being updated
-        if (updateData.score !== undefined) {
-            const maxScore = updateData.maxScore || grade.maxScore;
-            if (updateData.score < 0 || updateData.score > maxScore) {
-                return res.status(400).json({
+        // Validate grade if provided
+        if (grade !== undefined) {
+            Grade.validateGrade(grade);
+        }
+
+        // Check if student exists (if studentId is being updated)
+        if (studentId && studentId !== existingGrade.studentId.toString()) {
+            const student = await Student.findById(studentId);
+            if (!student) {
+                return res.status(404).json({
                     success: false,
-                    message: `Score must be between 0 and ${maxScore}`
+                    message: 'Student not found'
                 });
             }
         }
 
-        // Update grade
-        Object.assign(grade, updateData);
-        await grade.save();
-        await grade.populate('studentId', 'fullName nis class');
-        await grade.populate('teacherId', 'fullName username');
+        // Check for duplicate if key fields are being changed
+        if (studentId || subject || semester || academicYear) {
+            const duplicateGrade = await Grade.findOne({
+                _id: { $ne: id },
+                studentId: studentId || existingGrade.studentId,
+                subject: subject || existingGrade.subject,
+                semester: semester || existingGrade.semester,
+                academicYear: academicYear || existingGrade.academicYear
+            });
+
+            if (duplicateGrade) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Grade already exists for this student, subject, and semester'
+                });
+            }
+        }
+
+        const updatedGrade = await Grade.findByIdAndUpdate(
+            id,
+            { studentId, subject, grade, semester, academicYear, description },
+            { new: true, runValidators: true }
+        ).populate('studentId', 'fullName nis class grade');
 
         res.status(200).json({
             success: true,
             message: 'Grade updated successfully',
-            data: { grade }
+            data: updatedGrade
         });
 
     } catch (error) {
-        console.error('Update grade error:', error);
+        console.error('Error updating grade:', error);
         res.status(500).json({
             success: false,
-            message: 'Error updating grade',
-            error: error.message
+            message: error.message || 'Server error'
         });
     }
 };
 
-// Delete grade
+// Delete a grade
 exports.deleteGrade = async (req, res) => {
     try {
         const { id } = req.params;
-        
-        const grade = await Grade.findOne({
-            _id: id,
-            teacherId: req.userId
-        });
 
+        const grade = await Grade.findById(id);
         if (!grade) {
             return res.status(404).json({
                 success: false,
@@ -274,11 +299,10 @@ exports.deleteGrade = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Delete grade error:', error);
+        console.error('Error deleting grade:', error);
         res.status(500).json({
             success: false,
-            message: 'Error deleting grade',
-            error: error.message
+            message: 'Server error'
         });
     }
 };

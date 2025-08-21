@@ -19,19 +19,14 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const initializeAuth = async () => {
-      const token = Cookies.get('token');
-      if (token) {
-        // Set token to axios headers and assume user is logged in
-        api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-        // Set dummy user data to avoid logout
-        setUser({
-          id: 'dummy_id',
-          username: 'user',
-          email: 'user@example.com',
-          fullName: 'User',
-          role: 'teacher'
-        });
-      }
+      // Set dummy user untuk testing tanpa login
+      setUser({
+        id: 'dummy_id',
+        username: 'demo_teacher',
+        email: 'teacher@demo.com',
+        fullName: 'Guru Demo',
+        role: 'teacher'
+      });
       setLoading(false);
     };
 
